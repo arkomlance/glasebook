@@ -235,6 +235,13 @@ svg.icon {
 .badge-pill svg.icon { width: 13px; height: 13px; }
 .badge-promoted { background: var(--yolk); color: #5a4306; }
 .badge-premium { background: var(--barn); color: #fff; }
+.badge-muse { background: linear-gradient(135deg, #7b5cff, #b388ff); color: #fff; }
+.ai-tag {
+  display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; color: #7b5cff; background: rgba(123, 92, 255, .12);
+  border: 1px solid rgba(123, 92, 255, .35); border-radius: 999px; padding: 1px 7px;
+  margin-left: 6px; vertical-align: middle;
+}
 .post-badges { display: flex; gap: 6px; margin-bottom: 8px; }
 
 .post-actions { display: flex; gap: 4px; border-top: 1px solid var(--hay); padding-top: 6px; margin-top: 4px; }

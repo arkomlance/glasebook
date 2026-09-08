@@ -16,6 +16,11 @@ const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const { db, genInviteCode } = require('./db');
 
+// Flock: on boot, seed muse accounts + starter content when the DB is empty.
+// (Render's free tier wipes SQLite on restart, so a fresh boot must look alive.)
+const { seedFlockIfNeeded } = require('./flock/seed');
+seedFlockIfNeeded(db);
+
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-only-insecure-session-secret-change-me';
@@ -63,6 +68,7 @@ function profileUser(u, includeInvite = false) {
     avatarUrl: avatarUrlFor(u),
     coverUrl: u.cover_url || null,
     premium: !!u.premium,
+    isMuse: !!u.is_muse,
     createdAt: u.created_at,
   };
   if (includeInvite) out.inviteCode = u.invite_code || null;
@@ -86,7 +92,7 @@ const isEmail = (s) =>
 function postShape(row) {
   return {
     id: row.id,
-    author: { id: row.author_id, name: row.author_name, avatarUrl: row.author_avatar || `/avatars/default/${row.author_id}.svg` },
+    author: { id: row.author_id, name: row.author_name, avatarUrl: row.author_avatar || `/avatars/default/${row.author_id}.svg`, isMuse: !!row.author_is_muse },
     text: row.text,
     imageUrl: row.image_url || null,
     promoted: !!row.promoted,
@@ -100,6 +106,7 @@ function postShape(row) {
 const POSTS_SELECT = `
   SELECT p.id, p.text, p.image_url, p.promoted, p.created_at,
          u.id AS author_id, u.name AS author_name, u.avatar_url AS author_avatar,
+         u.is_muse AS author_is_muse,
          (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
          (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
          EXISTS(SELECT 1 FROM likes l2 WHERE l2.post_id = p.id AND l2.user_id = ?) AS liked_by_me
@@ -470,7 +477,33 @@ app.get('/api/feed', requireAuth, (req, res) => {
   }
   const rows = db
     .prepare(
-      `${POSTS_SELECT} WHERE p.user_id IN (${placeholders}) ${before !== null ? 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))' : ''} ${before !== null ? 'ORDER BY p.created_at DESC, p.id DESC' : 'ORDER BY p.promoted DESC, p.created_at DESC, p.id DESC'} LIMIT ${limit + 1}`
+      `${POSTS_SELECT} WHERE (p.user_id IN (${placeholders}) OR u.is_muse = 1) ${before !== null ? 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))' : ''} ${before !== null ? 'ORDER BY p.created_at DESC, p.id DESC' : 'ORDER BY p.promoted DESC, p.created_at DESC, p.id DESC'} LIMIT ${limit + 1}`
+    )
+    .all(...params);
+  const hasMore = rows.length > limit;
+  res.json({ posts: rows.slice(0, limit).map(postShape), hasMore });
+});
+
+// Public feed: the coop's muse activity, visible with zero auth (landing page).
+// Same cursor pagination as /api/feed. likedByMe is always false here.
+app.get('/api/public/feed', (req, res) => {
+  let limit = parseInt(req.query.limit, 10);
+  if (!Number.isSafeInteger(limit) || limit < 1) limit = 20;
+  limit = Math.min(limit, 50);
+  let before = null;
+  if (req.query.before !== undefined) {
+    before = parseId(req.query.before);
+    if (before === null) return res.status(400).json({ error: 'Invalid before parameter' });
+  }
+  const params = [0];
+  if (before !== null) {
+    const anchor = db.prepare('SELECT created_at FROM posts WHERE id = ?').get(before);
+    if (!anchor) return res.status(400).json({ error: 'Invalid before parameter' });
+    params.push(anchor.created_at, anchor.created_at, before);
+  }
+  const rows = db
+    .prepare(
+      `${POSTS_SELECT} WHERE u.is_muse = 1 ${before !== null ? 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))' : ''} ORDER BY p.created_at DESC, p.id DESC LIMIT ${limit + 1}`
     )
     .all(...params);
   const hasMore = rows.length > limit;
@@ -890,3 +923,8 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Glasebook API listening on port ${PORT} (env: ${NODE_ENV})`);
 });
+
+// Flock activity engine: ongoing muse posts/replies/eggs while the server runs.
+// Kill switch: FLOCK_ENABLED=0 disables the ticker (boot seed still runs).
+const { startFlockEngine } = require('./flock/engine');
+startFlockEngine(db);

@@ -431,8 +431,49 @@ function renderLanding() {
     description: "Glasebook is the silly, cozy social network where you cluck your thoughts, throw eggs at what you love, and grow your flock. Free to join — hop in the coop!",
     image: "",
   });
-  // Zero API calls: the landing page works with no authentication at all.
+  // Landing page: static marketing ships in index.html (works with zero auth
+  // and zero JS). When JS runs, swap the sample clucks for live coop activity.
   if (!app.querySelector("[data-landing]")) app.innerHTML = STATIC_LANDING_HTML;
+  hydratePublicFeed();
+}
+
+/* ============ public live feed (logged-out landing) ============ */
+
+function publicCluckCardHTML(p) {
+  const aiTag = p.author && p.author.isMuse ? '<span class="ai-tag">🤖 AI</span>' : "";
+  return (
+    '<article class="card">' +
+      '<div class="card-header">' +
+        avatarFor(p.author) +
+        '<div class="who">' +
+          '<div class="name">' + esc(p.author.name) + aiTag + "</div>" +
+          '<div class="time"><time datetime="' + esc(p.createdAt || "") + '">' + esc(timeAgo(p.createdAt)) + "</time> · live cluck</div>" +
+        "</div>" +
+      "</div>" +
+      '<p class="post-text">' + esc(p.text) + "</p>" +
+      '<div class="post-actions">' +
+        '<span class="action-btn" aria-label="' + esc(String(p.likeCount || 0)) + ' eggs thrown">&#x1F95A; ' + esc(String(p.likeCount || 0)) + "</span>" +
+        '<span class="action-btn" aria-label="' + esc(String(p.commentCount || 0)) + ' comments">&#x1F4AC; ' + esc(String(p.commentCount || 0)) + "</span>" +
+      "</div>" +
+      '<div style="margin-top:8px"><a class="btn btn-gold btn-block" href="#/signup">Join the flock to throw eggs &#x1F95A;</a></div>' +
+    "</article>"
+  );
+}
+
+async function hydratePublicFeed() {
+  const mock = document.querySelector(".feed-mock");
+  if (!mock || mock.dataset.live === "1") return;
+  try {
+    const data = await get("/api/public/feed?limit=6");
+    const posts = (data && data.posts) || [];
+    if (!posts.length) return;
+    mock.dataset.live = "1";
+    mock.innerHTML = posts.map(publicCluckCardHTML).join("");
+    const tag = document.querySelector(".preview-tag");
+    if (tag) tag.innerHTML = '<span aria-hidden="true">🔴</span> Live from the coop — fresh clucks';
+  } catch (e) {
+    /* keep the static samples */
+  }
 }
 
 function route() {
@@ -933,7 +974,8 @@ function postCardHTML(p) {
       '<div class="card-header">' +
         '<a href="#/profile/' + esc(String(p.author.id)) + '" aria-label="' + esc(p.author.name) + '\u2019s profile">' + avatarFor(p.author) + "</a>" +
         '<div class="who">' +
-          '<div class="name"><a href="#/profile/' + esc(String(p.author.id)) + '" style="color:inherit">' + esc(p.author.name) + "</a></div>" +
+          '<div class="name"><a href="#/profile/' + esc(String(p.author.id)) + '" style="color:inherit">' + esc(p.author.name) + "</a>" +
+          (p.author.isMuse ? '<span class="ai-tag">🤖 AI</span>' : "") + "</div>" +
           '<div class="time"><time datetime="' + esc(p.createdAt || "") + '">' + esc(timeAgo(p.createdAt)) + "</time></div>" +
         "</div>" +
         (mine ? '<button class="delete-btn" data-del title="Delete cluck" aria-label="Delete cluck">' + icon("trash") + "</button>" : "") +
@@ -1104,6 +1146,7 @@ async function renderProfile(userId) {
             '<div class="profile-ava-row"><img class="profile-avatar" src="' + esc(avatarSrc) + '" alt="' + esc(u.name) + '\u2019s avatar"></div>' +
             "<h2>" + esc(u.name) +
               (u.premium ? ' <span class="badge-pill badge-premium">' + icon("star") + " Premium</span>" : "") +
+              (u.isMuse ? ' <span class="badge-pill badge-muse">🤖 AI muse</span>' : "") +
             "</h2>" +
             (u.bio ? '<div class="bio">' + esc(u.bio) + "</div>" : "") +
             '<div class="fcount">' + esc(String(friendsN)) + " friends</div>" +
