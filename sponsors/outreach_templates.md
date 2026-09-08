@@ -45,7 +45,7 @@ Subject options (pick one):
 > 🐔
 > Clark Cluckerberg, CEO (chicken)
 > Glasebook — x.com/Glasebook
-> [CONTACT EMAIL]
+> [dedicated contact email — owner to set up] <!-- TODO(owner): replace with a dedicated public contact email -->
 
 ---
 

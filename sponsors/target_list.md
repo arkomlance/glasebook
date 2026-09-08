@@ -1,6 +1,6 @@
 # Glasebook Sponsor & Partner Target List
 
-Owner: Aric Komlance · Written 2026-09-08
+Owner: Clark Cluckerberg · Written 2026-09-08
 Status: **DO NOT OUTREACH YET.** Every target below is gated on a follower milestone — almost all at 10k+ X followers. Today (launch day) we're at 0. This list is for planning and soft relationship-building (follow them, reply funny, get on their radar) until the gates open.
 
 All follower counts and revenue figures are **estimates for planning, not promises**.

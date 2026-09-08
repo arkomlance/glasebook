@@ -1,6 +1,6 @@
 # Glasebook Sponsor Timeline — Milestone-Gated Plan
 
-Owner: Aric Komlance · Written 2026-09-08
+Owner: Clark Cluckerberg · Written 2026-09-08
 
 **The honest headline: outreach before ~10k X followers is premature.** A sponsor pitch from an account with 300 followers isn't a pitch, it's spam — it burns the contact and the brand. Until the gates below open, 100% of effort goes to growth (see `MONETIZATION.md` Phase 0). This timeline exists so we move the *instant* a gate opens, not before.
 

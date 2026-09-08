@@ -918,6 +918,42 @@ body::before {
   margin-top: 20px;
 }
 
+/* ---------- Landing: "peek inside" showcase mockup ---------- */
+.preview-wrap { text-align: center; }
+.preview-tag {
+  display: inline-block;
+  font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--barn); background: rgba(178, 58, 46, .07);
+  border: 1px dashed rgba(178, 58, 46, .45);
+  padding: 7px 14px; border-radius: 999px; margin-bottom: 20px;
+}
+.showcase-grid {
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap: 16px;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: left;
+}
+.feed-mock .card:last-child { margin-bottom: 0; }
+.mock-ava {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px; background: var(--cream); flex-shrink: 0;
+}
+.mock-ava-lg { width: 72px; height: 72px; font-size: 40px; border: 3px solid var(--yolk); }
+.profile-mock { text-align: center; align-self: start; position: sticky; top: 12px; }
+.profile-mock .mock-ava-lg { margin: 4px auto 10px; }
+.profile-mock h3 { font-family: var(--brand-font); color: var(--barn); font-size: 21px; }
+.profile-mock .handle { color: var(--soil-muted); font-size: 14px; margin-bottom: 8px; }
+.profile-mock .bio { font-size: 14px; margin-bottom: 12px; }
+.profile-stats { display: flex; justify-content: center; gap: 22px; margin-bottom: 16px; font-size: 13px; color: var(--soil-muted); }
+.profile-stats strong { display: block; font-size: 18px; color: var(--soil); }
+.mock-note { font-size: 12.5px; color: var(--soil-muted); margin-top: 12px; }
+@media (max-width: 760px) {
+  .showcase-grid { grid-template-columns: 1fr; }
+  .profile-mock { position: static; }
+}
+
 /* ---------- Reduced motion: calm everything down ---------- */
 @media (prefers-reduced-motion: reduce) {
   .feather, .orb { display: none; }

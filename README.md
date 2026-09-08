@@ -8,7 +8,7 @@ deployable Node.js monolith — free to run, easy to host.
 
 ## Ownership
 
-Glasebook is owned by **Aric Komlance**. © 2026 Glasebook. All rights reserved.
+Glasebook is owned by **Clark Cluckerberg**. © 2026 Glasebook. All rights reserved.
 
 ## Tech stack
 

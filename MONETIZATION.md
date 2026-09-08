@@ -1,6 +1,6 @@
 # Glasebook: Monetization + Growth Strategy
 
-Owner: Aric Komlance · Starting position: $0 budget, 0 users · Written 2026-09-08
+Owner: Clark Cluckerberg · Starting position: $0 budget, 0 users · Written 2026-09-08
 
 The honest headline first: social networks take **years**, not months. Most die at <1k users. Glasebook's advantages are (a) it costs ~$0 to run, so we have infinite runway, and (b) the silly parody angle is genuinely differentiated — nobody shares boring. This doc is the plan to turn those advantages into users, then dollars.
 

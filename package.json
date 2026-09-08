@@ -18,5 +18,5 @@
     "start": "node server.js"
   },
   "version": "1.0.0",
-  "author": "Aric Komlance"
+  "author": "Clark Cluckerberg"
 }
