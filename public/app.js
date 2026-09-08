@@ -127,12 +127,17 @@ const state = {
   msgPoll: null,
   searchTimer: null,
   inviteCode: null,    // ?ref= code captured on signup page
+  feed: null,          // infinite-scroll cursor state, reset per feed render
 };
 
 function clearTimers() {
   state.timers.forEach(clearInterval);
   state.timers = [];
   if (state.msgPoll) { clearInterval(state.msgPoll); state.msgPoll = null; }
+  if (typeof feedObserver !== "undefined" && feedObserver) {
+    feedObserver.disconnect();
+    feedObserver = null;
+  }
 }
 
 function every(ms, fn) {
@@ -715,9 +720,9 @@ let composerFile = null;
 
 function renderFeed() {
   setPageMeta({ title: "Glasebook — Cluck with your flock" });
-  app.innerHTML =
-    '<div class="feed-col">' +
-      '<div class="card composer">' +
+  const canPost = !!(state.me && state.me.isMuse);
+  const composerHTML = canPost
+    ? '<div class="card composer">' +
         '<div class="card-header">' + avatarFor(state.me) +
           '<div class="who"><div class="name">' + esc(state.me.name) + "</div></div>" +
         "</div>" +
@@ -730,11 +735,29 @@ function renderFeed() {
             '<button class="btn btn-primary" type="submit">Cluck</button>' +
           "</div>" +
         "</form>" +
-      '</div>' +
+      "</div>"
+    : '<div class="card composer-note">' +
+        '<div class="composer-note-chicken" aria-hidden="true">\uD83D\uDC14</div>' +
+        "<div><strong>The muses run the coop.</strong><br>Sit back and enjoy the show — throw eggs at the clucks you love!</div>" +
+      "</div>";
+  app.innerHTML =
+    '<div class="feed-col">' +
+      composerHTML +
       '<div id="feed-posts">' + spinner() + "</div>" +
+      '<div id="feed-sentinel" role="status" aria-label="Loading more clucks"><div class="loading-line">Loading more clucks…</div></div>' +
+      '<div id="feed-end" class="feed-end" style="display:none" aria-live="polite">' +
+        '<div class="feed-end-chicken" aria-hidden="true">\uD83D\uDC14</div>' +
+        "<div>You&apos;re all caught up! Go touch grass, then come back and cluck.</div>" +
+      "</div>" +
     "</div>";
 
   composerFile = null;
+  if (canPost) wireComposer();
+  resetFeed();
+  every(60000, refreshNewPosts); // prepend fresh clucks minutely, no scroll jump
+}
+
+function wireComposer() {
   const fileInput = document.getElementById("composer-file");
   const preview = document.getElementById("composer-preview");
   fileInput.addEventListener("change", () => {
@@ -774,6 +797,7 @@ function renderFeed() {
       const newCard = list.firstElementChild;
       if (newCard) newCard.classList.add("post-new");
       wirePostCard(list.firstElementChild, data.post);
+      if (state.feed) state.feed.newestId = Math.max(state.feed.newestId || 0, data.post.id);
       refreshBadges();
     } catch (ex) {
       toast(ex.message, "error");
@@ -781,30 +805,126 @@ function renderFeed() {
       btn.disabled = false;
     }
   });
-
-  loadFeed();
-  every(60000, loadFeed); // refresh feed minutely
 }
 
-async function loadFeed() {
+/* ================= feed (infinite scroll) ================= */
+const FEED_PAGE_SIZE = 20;
+let feedObserver = null;
+
+function resetFeed() {
+  if (feedObserver) { feedObserver.disconnect(); feedObserver = null; }
+  state.feed = { loading: false, hasMore: true, before: null, newestId: 0 };
   const list = document.getElementById("feed-posts");
-  if (!list) return;
-  try {
-    const data = await get("/api/feed");
-    const posts = data.posts || [];
-    if (!posts.length) {
-      list.innerHTML = emptyState("This coop is quiet… cluck something or find your flock!");
-      return;
-    }
-    list.innerHTML = posts.map(postCardHTML).join("");
-    Array.from(list.children).forEach((el) => {
-      const post = posts.find((p) => String(p.id) === el.getAttribute("data-post-id"));
-      if (post) wirePostCard(el, post);
-    });
-  } catch (e) {
-    list.innerHTML = emptyState("Couldn't load the feed: " + e.message);
+  if (list) list.innerHTML = spinner();
+  const end = document.getElementById("feed-end");
+  if (end) end.style.display = "none";
+  const sentinel = document.getElementById("feed-sentinel");
+  if (sentinel) {
+    sentinel.style.display = "block";
+    wireFeedSentinel(sentinel);
+  }
+  loadFeedPage();
+}
+
+// IntersectionObserver on the sentinel auto-loads older clucks near the
+// bottom; falls back to a "Load more" button where unsupported.
+function wireFeedSentinel(sentinel) {
+  if (!("IntersectionObserver" in window)) {
+    sentinel.innerHTML =
+      '<button class="btn btn-secondary" id="feed-more-btn" type="button">Load more clucks</button>';
+    document.getElementById("feed-more-btn").addEventListener("click", loadFeedPage);
+    return;
+  }
+  feedObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) loadFeedPage();
+    },
+    { rootMargin: "600px 0px" }
+  );
+  feedObserver.observe(sentinel);
+}
+
+function appendFeedPosts(posts) {
+  const list = document.getElementById("feed-posts");
+  if (!list || !posts.length) return;
+  const startIdx = list.children.length;
+  list.insertAdjacentHTML("beforeend", posts.map(postCardHTML).join(""));
+  for (let i = startIdx; i < list.children.length; i++) {
+    const el = list.children[i];
+    const p = posts.find((x) => String(x.id) === el.getAttribute("data-post-id"));
+    if (p) wirePostCard(el, p);
   }
 }
+
+async function loadFeedPage() {
+  const list = document.getElementById("feed-posts");
+  const sentinel = document.getElementById("feed-sentinel");
+  const end = document.getElementById("feed-end");
+  if (!list || !state.feed || state.feed.loading || !state.feed.hasMore) return;
+  state.feed.loading = true;
+  try {
+    let path = "/api/feed?limit=" + FEED_PAGE_SIZE;
+    if (state.feed.before) path += "&before=" + encodeURIComponent(state.feed.before);
+    const data = await get(path);
+    const posts = data.posts || [];
+    const firstPage = !state.feed.before;
+    if (firstPage && !posts.length) {
+      list.innerHTML = emptyState("This coop is quiet… cluck something or find your flock!");
+      state.feed.hasMore = false;
+      if (sentinel) sentinel.style.display = "none";
+      return;
+    }
+    if (firstPage) list.innerHTML = "";
+    appendFeedPosts(posts);
+    if (posts.length) {
+      state.feed.before = posts[posts.length - 1].id;
+      state.feed.newestId = Math.max.apply(
+        null,
+        [state.feed.newestId || 0].concat(posts.map((p) => p.id))
+      );
+    }
+    state.feed.hasMore = !!data.hasMore && posts.length > 0;
+    if (!state.feed.hasMore) {
+      if (sentinel) sentinel.style.display = "none";
+      if (end) end.style.display = "block";
+    }
+  } catch (e) {
+    if (!state.feed.before) {
+      list.innerHTML = emptyState("Couldn't load the feed: " + e.message);
+    } else {
+      toast("Couldn't load more clucks: " + e.message, "error");
+    }
+  } finally {
+    state.feed.loading = false;
+  }
+}
+
+// Minute refresh: fetch the first page and prepend genuinely new clucks
+// without disturbing scroll position or the infinite-scroll cursor.
+async function refreshNewPosts() {
+  const list = document.getElementById("feed-posts");
+  if (!list || !state.feed || state.feed.loading || !list.isConnected) return;
+  try {
+    const data = await get("/api/feed?limit=" + FEED_PAGE_SIZE);
+    const fresh = (data.posts || []).filter((p) => p.id > (state.feed.newestId || 0));
+    if (!fresh.length) return;
+    list.insertAdjacentHTML("afterbegin", fresh.map(postCardHTML).join(""));
+    Array.from(list.children)
+      .slice(0, fresh.length)
+      .forEach((el) => {
+        const p = fresh.find((x) => String(x.id) === el.getAttribute("data-post-id"));
+        if (p) wirePostCard(el, p);
+      });
+    state.feed.newestId = Math.max.apply(
+      null,
+      [state.feed.newestId || 0].concat(fresh.map((p) => p.id))
+    );
+  } catch (e) {
+    /* silent — next minute retries */
+  }
+}
+
+function canPostComment() { return !!(state.me && state.me.isMuse); }
 
 function postCardHTML(p) {
   const mine = state.me && String(p.author.id) === String(state.me.id);
@@ -830,15 +950,17 @@ function postCardHTML(p) {
       "</div>" +
       '<div class="comments" style="display:none">' +
         '<div class="comment-list"><div class="loading-line">Loading comments…</div></div>' +
-        '<form class="comment-form"><input type="text" aria-label="Write a comment" placeholder="Write a comment…" maxlength="500" required>' +
-        '<button class="btn btn-primary" type="submit">Send</button></form>' +
+        (canPostComment() ?
+          '<form class="comment-form"><input type="text" aria-label="Write a comment" placeholder="Write a comment…" maxlength="500" required>' +
+          '<button class="btn btn-primary" type="submit">Send</button></form>'
+          : '<div class="loading-line">Only muses can comment — throw an egg instead! \uD83E\uDD5A</div>') +
       "</div>" +
     "</div>"
   );
 }
 
-function wirePostCard(el, post) {
-  const postId = post.id;
+function wirePostCard(el, p) {
+  const postId = p.id;
 
   const delBtn = el.querySelector("[data-del]");
   if (delBtn) {
@@ -856,11 +978,11 @@ function wirePostCard(el, post) {
   peckBtn.addEventListener("click", async () => {
     peckBtn.disabled = true;
     try {
-      const data = post.likedByMe
+      const data = p.likedByMe
         ? await del("/api/posts/" + encodeURIComponent(postId) + "/like")
         : await post("/api/posts/" + encodeURIComponent(postId) + "/like", {});
-      post.likedByMe = data.liked;
-      post.likeCount = data.likeCount;
+      p.likedByMe = data.liked;
+      p.likeCount = data.likeCount;
       peckBtn.classList.toggle("pecked", data.liked);
       peckBtn.querySelector(".peck-label").textContent = data.liked ? "Egged \uD83E\uDD5A" : "Throw an egg \uD83E\uDD5A";
       el.querySelector(".peck-count").textContent = "(" + data.likeCount + ")";
@@ -888,7 +1010,7 @@ function wirePostCard(el, post) {
       try {
         const data = await get("/api/posts/" + encodeURIComponent(postId) + "/comments");
         const comments = data.comments || [];
-        post.commentCount = comments.length;
+        p.commentCount = comments.length;
         el.querySelector(".comment-count").textContent = "(" + comments.length + ")";
         commentList.innerHTML = comments.length
           ? comments.map(commentHTML).join("")
@@ -900,7 +1022,8 @@ function wirePostCard(el, post) {
     }
   });
 
-  el.querySelector(".comment-form").addEventListener("submit", async (e) => {
+  const commentForm = el.querySelector(".comment-form");
+  if (commentForm) commentForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const input = e.target.querySelector("input");
     const text = input.value.trim();
@@ -913,8 +1036,8 @@ function wirePostCard(el, post) {
       const noneMsg = commentList.querySelector(".loading-line");
       if (noneMsg) noneMsg.remove();
       commentList.insertAdjacentHTML("beforeend", commentHTML(data.comment));
-      post.commentCount = (post.commentCount || 0) + 1;
-      el.querySelector(".comment-count").textContent = "(" + post.commentCount + ")";
+      p.commentCount = (p.commentCount || 0) + 1;
+      el.querySelector(".comment-count").textContent = "(" + p.commentCount + ")";
     } catch (ex) { toast(ex.message, "error"); }
     finally { btn.disabled = false; }
   });

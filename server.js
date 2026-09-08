@@ -39,7 +39,19 @@ function publicUser(u) {
     avatarUrl: avatarUrlFor(u),
     premium: !!u.premium,
     inviteCode: u.invite_code || null,
+    isMuse: !!u.is_muse,
   };
+}
+// Only muse/bot accounts and the site admin (user #1) may publish.
+function canPublish(user) {
+  return !!user && !!user.is_muse;
+}
+function requireMuse(req, res, next) {
+  const user = currentUser(req);
+  if (!canPublish(user)) {
+    return res.status(403).json({ error: 'The muses run the coop — only muse accounts can post. Sit back and enjoy the show 🐔' });
+  }
+  next();
 }
 // profileUser: `premium` always included; `inviteCode` ONLY when the
 // requester is the user themselves (never expose other users' codes).
@@ -287,6 +299,10 @@ app.post('/api/auth/signup', authLimiter, (req, res) => {
   const info = db
     .prepare('INSERT INTO users (name, email, password_hash, invite_code, referred_by) VALUES (?, ?, ?, ?, ?)')
     .run(name, email, hash, genInviteCode(), referredBy);
+  // The very first account is the founder/admin — always a muse with posting rights.
+  if (Number(info.lastInsertRowid) === 1) {
+    db.prepare('UPDATE users SET is_muse = 1 WHERE id = 1').run();
+  }
   const user = getUserById.get(info.lastInsertRowid);
   req.session.userId = user.id;
   res.status(201).json({ user: publicUser(user) });
@@ -413,7 +429,7 @@ app.get('/avatars/default/:id.svg', (req, res) => {
 // ---------------------------------------------------------------------------
 // Posts
 // ---------------------------------------------------------------------------
-app.post('/api/posts', requireAuth, upload.single('file'), (req, res) => {
+app.post('/api/posts', requireAuth, requireMuse, upload.single('file'), (req, res) => {
   const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
   if (!text || text.length > 2000)
     return res.status(400).json({ error: 'Post text must be 1-2000 characters' });
@@ -434,12 +450,31 @@ app.get('/api/feed', requireAuth, (req, res) => {
   const me = req.session.userId;
   const ids = [me, ...friendIdsOf(me)];
   const placeholders = ids.map(() => '?').join(',');
+  // Cursor pagination for infinite scroll: `before` = post id; returns posts
+  // older than it. `limit` default 20, max 50. Response: {posts, hasMore}.
+  let limit = parseInt(req.query.limit, 10);
+  if (!Number.isSafeInteger(limit) || limit < 1) limit = 20;
+  limit = Math.min(limit, 50);
+  let before = null;
+  if (req.query.before !== undefined) {
+    before = parseId(req.query.before);
+    if (before === null) return res.status(400).json({ error: 'Invalid before parameter' });
+  }
+  const params = [me, ...ids];
+  if (before !== null) {
+    const anchor = db.prepare('SELECT created_at FROM posts WHERE id = ?').get(before);
+    if (!anchor) return res.status(400).json({ error: 'Invalid before parameter' });
+    params.push(anchor.created_at, anchor.created_at, before);
+    // NOTE: promoted-first pinning applies to the first page only, so the
+    // (created_at, id) cursor stays consistent across subsequent pages.
+  }
   const rows = db
     .prepare(
-      `${POSTS_SELECT} WHERE p.user_id IN (${placeholders}) ORDER BY p.promoted DESC, p.created_at DESC, p.id DESC LIMIT 200`
+      `${POSTS_SELECT} WHERE p.user_id IN (${placeholders}) ${before !== null ? 'AND (p.created_at < ? OR (p.created_at = ? AND p.id < ?))' : ''} ${before !== null ? 'ORDER BY p.created_at DESC, p.id DESC' : 'ORDER BY p.promoted DESC, p.created_at DESC, p.id DESC'} LIMIT ${limit + 1}`
     )
-    .all(me, ...ids);
-  res.json({ posts: rows.map(postShape) });
+    .all(...params);
+  const hasMore = rows.length > limit;
+  res.json({ posts: rows.slice(0, limit).map(postShape), hasMore });
 });
 
 app.get('/api/profile/:id/posts', (req, res) => {
@@ -514,7 +549,7 @@ app.get('/api/posts/:id/comments', (req, res) => {
   });
 });
 
-app.post('/api/posts/:id/comments', requireAuth, (req, res) => {
+app.post('/api/posts/:id/comments', requireAuth, requireMuse, (req, res) => {
   const id = parseId(req.params.id);
   if (!id) return res.status(400).json({ error: 'Invalid post id' });
   const post = db.prepare('SELECT * FROM posts WHERE id = ?').get(id);

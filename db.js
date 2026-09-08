@@ -134,6 +134,9 @@ function ensureColumn(table, column, ddl) {
 ensureColumn('users', 'invite_code', 'TEXT');
 ensureColumn('users', 'referred_by', 'INTEGER REFERENCES users(id) ON DELETE SET NULL');
 ensureColumn('users', 'premium', 'INTEGER NOT NULL DEFAULT 0');
+ensureColumn('users', 'is_muse', 'INTEGER NOT NULL DEFAULT 0');
+// Founder/admin (user #1) always has posting rights, on fresh and legacy DBs.
+db.exec('UPDATE users SET is_muse = 1 WHERE id = 1 AND (is_muse IS NULL OR is_muse = 0)');
 ensureColumn('posts', 'promoted', 'INTEGER NOT NULL DEFAULT 0');
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_invite_code ON users(invite_code)');
 
