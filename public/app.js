@@ -415,13 +415,29 @@ function avatarFor(user, cls) {
 
 const app = document.getElementById("app");
 
+// Static landing markup ships inside index.html (SEO + no-JS fallback). The SPA
+// reuses this exact HTML for logged-out visits to #/ so there's a single source.
+const STATIC_LANDING_HTML = app.innerHTML;
+
+function renderLanding() {
+  document.getElementById("nav").innerHTML = "";
+  setPageMeta({
+    title: "Glasebook — Cluck with your flock",
+    description: "Glasebook is the silly, cozy social network where you cluck your thoughts, peck what you love, and grow your flock. Free to join — hop in the coop!",
+    image: "",
+  });
+  // Zero API calls: the landing page works with no authentication at all.
+  if (!app.querySelector("[data-landing]")) app.innerHTML = STATIC_LANDING_HTML;
+}
+
 function route() {
   clearTimers();
   resetPageMeta();
   const hash = location.hash || "#/";
   if (!state.me) {
     if (hash === "#/signup") return renderSignup();
-    return renderLogin(); // everything else requires login
+    if (hash === "#/login") return renderLogin();
+    return renderLanding(); // public marketing page: #/ and any other logged-out route
   }
   renderNav();
   if (hash === "#/" || hash === "#/feed") return renderFeed();

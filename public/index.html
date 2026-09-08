@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Glasebook — Cluck with your flock</title>
-  <meta name="description" content="Glasebook is a cozy, original social network. Share clucks, peck what you love, and grow your flock.">
+  <meta name="description" content="Glasebook is the silly, cozy social network where you cluck your thoughts, peck what you love, and grow your flock. Free to join — hop in the coop!">
+  <link rel="canonical" href="https://glasebook.onrender.com/">
   <meta property="og:site_name" content="Glasebook">
-  <meta property="og:title" content="Glasebook — Cluck with your flock">
-  <meta property="og:description" content="Glasebook is a cozy, original social network. Share clucks, peck what you love, and grow your flock.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="">
+  <meta property="og:url" content="https://glasebook.onrender.com/">
+  <meta property="og:title" content="Glasebook — Cluck with your flock">
+  <meta property="og:description" content="The silly, cozy social network: cluck your thoughts, peck what you love, grow your flock. Join free!">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@Glasebook">
+  <meta name="twitter:title" content="Glasebook — Cluck with your flock">
+  <meta name="twitter:description" content="The silly, cozy social network: cluck your thoughts, peck what you love, grow your flock. Join free!">
   <meta name="theme-color" content="#b23a2e">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +24,120 @@
 <body>
   <a class="skip-link" href="#app">Skip to content</a>
   <div id="nav"></div>
-  <main id="app" tabindex="-1"></main>
+  <main id="app" tabindex="-1">
+    <!-- Public landing page: visible to logged-out visitors with zero auth and zero JS.
+         The SPA reuses this exact markup for #/ when logged out (captured at boot). -->
+    <div class="landing" data-landing>
+      <section class="landing-hero" aria-labelledby="landing-title">
+        <div class="hero-feathers" aria-hidden="true">
+          <span class="feather f1">&#x1FAB6;</span>
+          <span class="feather f2">&#x1FAB6;</span>
+          <span class="feather f3">&#x1FAB6;</span>
+          <span class="feather f4">&#x1FAB6;</span>
+          <span class="feather f5">&#x1FAB6;</span>
+          <span class="orb o1"></span>
+          <span class="orb o2"></span>
+          <span class="orb o3"></span>
+        </div>
+        <div class="hero-mascot" aria-hidden="true">
+          <svg viewBox="0 0 48 48">
+            <path d="M14 30c-5-1-8-4-9-8 4 0 7 1 9 3-3-3-4-7-3-10 3 2 5 4 6 7z" fill="#d97b2f"/>
+            <ellipse cx="26" cy="30" rx="12" ry="9.5" fill="#f2b134"/>
+            <ellipse cx="24" cy="31" rx="6" ry="4.5" fill="#e09b2d"/>
+            <path d="M22 38v5M22 43l-2.5 2M22 43l2.5 2M30 38v5M30 43l-2.5 2M30 43l2.5 2" stroke="#e07b2a" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <circle cx="34" cy="15" r="7.5" fill="#f2b134"/>
+            <circle cx="29" cy="7.5" r="2.6" fill="#b23a2e"/>
+            <circle cx="34" cy="6" r="2.8" fill="#b23a2e"/>
+            <circle cx="39" cy="7.5" r="2.6" fill="#b23a2e"/>
+            <path d="M41 14.5l5.5 2-5.5 2.2z" fill="#e07b2a"/>
+            <circle cx="35.5" cy="14" r="1.7" fill="#3e2f23"/>
+          </svg>
+        </div>
+        <p class="hero-kicker">Facebook&rsquo;s unserious cousin</p>
+        <h1 id="landing-title" class="hero-title">Cluck with <span class="grad-text">your flock.</span></h1>
+        <p class="hero-sub">Glasebook is the silly, cozy corner of the internet where you post <strong>clucks</strong>, hand out <strong>pecks</strong>, gather your <strong>flock</strong>, and rule the <strong>coop</strong>. No doom, no gloom &mdash; just good vibes and great plumage.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary btn-xl" href="#/signup">&#x1F423; Join the flock &mdash; it&rsquo;s free</a>
+          <a class="btn btn-ghost btn-xl" href="#/login">Log in</a>
+        </div>
+        <p class="hero-note">Free to join &middot; No app download &middot; Your coop, your rules</p>
+      </section>
+
+      <section class="landing-section" aria-labelledby="feat-title">
+        <h2 id="feat-title" class="section-head">Everything a <span class="grad-text">happy hen</span> needs</h2>
+        <div class="feature-grid">
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1F414;</div>
+            <h3>Clucks</h3>
+            <p>Post your thoughts, photos, and piping-hot takes. The coop is always listening.</p>
+          </div>
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1F424;</div>
+            <h3>Pecks</h3>
+            <p>Love it? Give it a peck. The barnyard&rsquo;s friendlier version of the like button.</p>
+          </div>
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1F4AC;</div>
+            <h3>Coop chats</h3>
+            <p>Slide into 1:1 messages with anyone in the flock. Private, speedy, drama-free.</p>
+          </div>
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1FAB9;</div>
+            <h3>Grow your flock</h3>
+            <p>Add friends, build your circle, and never cluck alone again.</p>
+          </div>
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1F381;</div>
+            <h3>Invites &amp; leaderboard</h3>
+            <p>Share your personal invite link, bring friends to the coop, and climb the pecking order.</p>
+          </div>
+          <div class="card feature-card">
+            <div class="feat-emoji" aria-hidden="true">&#x1F31F;</div>
+            <h3>Cozy profiles</h3>
+            <p>Avatars, covers, and bios &mdash; your own shiny corner of the coop to show off.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-section" aria-labelledby="how-title">
+        <h2 id="how-title" class="section-head">From egg to <span class="grad-text">top of the pecking order</span> in 3 steps</h2>
+        <ol class="steps">
+          <li class="card step-card">
+            <span class="step-n" aria-hidden="true">1</span>
+            <h3>&#x1F95A; Join the flock</h3>
+            <p>Free signup in about 30 seconds. Pick a name, grab an avatar, you&rsquo;re in.</p>
+          </li>
+          <li class="card step-card">
+            <span class="step-n" aria-hidden="true">2</span>
+            <h3>&#x1F423; Cluck your first thought</h3>
+            <p>Post it, peck your friends&rsquo; clucks, and get the squawking started.</p>
+          </li>
+          <li class="card step-card">
+            <span class="step-n" aria-hidden="true">3</span>
+            <h3>&#x1F3C6; Rule the roost</h3>
+            <p>Share your invite link and climb the flock leaderboard to barnyard glory.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="landing-section" aria-labelledby="proof-title">
+        <h2 id="proof-title" class="section-head">Fresh out of the <span class="grad-text">coop</span></h2>
+        <div class="card ceo-card">
+          <blockquote>
+            <p>&ldquo;I run a social network. I&rsquo;m a chicken. Questions?&rdquo;</p>
+            <footer>&mdash; <strong>Clark Cluckerberg</strong>, CEO of Glasebook <span class="parody-note">(parody)</span></footer>
+          </blockquote>
+        </div>
+        <p class="follow-line">Follow the flock on X: <a href="https://x.com/Glasebook" rel="noopener">@Glasebook</a> &middot; <a href="https://x.com/CEOofGlasebook" rel="noopener">@CEOofGlasebook</a></p>
+      </section>
+
+      <section class="landing-cta" aria-labelledby="cta-title">
+        <h2 id="cta-title">Ready to rule the roost?</h2>
+        <p>Your flock is waiting. The coop door is open.</p>
+        <a class="btn btn-gold btn-xl" href="#/signup">Join the flock &mdash; free</a>
+      </section>
+    </div>
+  </main>
   <footer class="site-footer">
     <span class="foot-brand">
       <svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true">
@@ -37,12 +155,17 @@
       Glasebook
     </span>
     <span class="foot-copy">© 2026 Glasebook · Owned by Aric Komlance</span>
-    <nav class="foot-links">
+    <nav class="foot-links" aria-label="Legal">
       <a href="/terms">Terms</a>
       <span class="foot-sep">·</span>
       <a href="/privacy">Privacy</a>
       <span class="foot-sep">·</span>
       <a href="/dmca">Copyright</a>
+    </nav>
+    <nav class="foot-links" aria-label="Follow Glasebook on X">
+      <a href="https://x.com/Glasebook" rel="noopener">X&nbsp;·&nbsp;@Glasebook</a>
+      <span class="foot-sep">·</span>
+      <a href="https://x.com/CEOofGlasebook" rel="noopener">X&nbsp;·&nbsp;@CEOofGlasebook</a>
     </nav>
     <span class="foot-legal">Glasebook is a parody-inspired original social network. Not affiliated with Meta Platforms, Inc.</span>
   </footer>
