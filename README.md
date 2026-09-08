@@ -27,12 +27,9 @@ Glasebook is owned by **Clark Cluckerberg**. © 2026 Glasebook. All rights reser
 cd glasebook
 npm install
 cp .env.example .env   # then set a real SESSION_SECRET
-node seed.js           # creates 3 demo users with posts, friends, messages
 npm start              # serves on http://localhost:3000
 ```
 
-Demo login: `demo@glasebook.local` / `glasebook123`
-(two more seeded users: `ava@glasebook.local`, `mia@glasebook.local`, same password).
 
 ## Features
 
@@ -51,7 +48,6 @@ Demo login: `demo@glasebook.local` / `glasebook123`
 ```
 server.js        # Express app: all API routes, static serving, uploads
 db.js            # SQLite schema + connection + invite-code helpers
-seed.js          # demo data (idempotent)
 public/          # frontend SPA (index.html, styles.css, app.js)
 uploads/         # user-uploaded images (gitignored, ephemeral on free hosts)
 data/            # SQLite file (gitignored)

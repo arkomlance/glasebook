@@ -14,7 +14,6 @@
   "name": "glasebook",
   "private": true,
   "scripts": {
-    "seed": "node seed.js",
     "start": "node server.js"
   },
   "version": "1.0.0",

@@ -475,7 +475,6 @@ function renderLogin() {
       '<div class="field"><label for="login-password">Password</label><input id="login-password" type="password" name="password" required autocomplete="current-password"></div>' +
       '<button class="btn btn-primary btn-block" type="submit">Log In</button>' +
     "</form>" +
-    '<div class="demo-hint"><b>Demo account</b> — email <code>demo@glasebook.local</code>, password <code>glasebook123</code></div>' +
     '<div class="auth-switch">New to Glasebook? <a href="#/signup">Join the flock</a></div>',
     "Log In"
   );
