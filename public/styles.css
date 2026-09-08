@@ -534,7 +534,7 @@ textarea:focus-visible,
 }
 .card.post-new { animation: post-in .35s ease-out; }
 
-/* ---------- Peck pop! ---------- */
+/* ---------- Egg pop! ---------- */
 @keyframes peck-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.5) rotate(-14deg); }

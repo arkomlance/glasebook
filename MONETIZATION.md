@@ -84,7 +84,7 @@ X is one channel. Here are the rest, all $0:
 
 ### SEO (slow, free, compounds)
 - Public profiles + public clucks get indexed by Google. Long-tail searches ("[name] glasebook") start bringing stray traffic within 2–3 months.
-- Publish a silly blog on the domain: "Why we replaced likes with pecks" — founder-story content ranks and gets linked.
+- Publish a silly blog on the domain: "Why we replaced likes with egg throws" — founder-story content ranks and gets linked.
 
 ### Community seeding (weeks 1–8)
 - Launch posts: Product Hunt, Hacker News "Show HN", r/SideProject, Indie Hackers. The "social network run by a chicken CEO" angle is *exactly* the kind of thing these communities upvote.
@@ -92,7 +92,7 @@ X is one channel. Here are the rest, all $0:
 - Discord/Telegram: start a "Coop" off-platform where the earliest 100 users hang out. Community first, platform second.
 
 ### PR-worthy silly stunts ($0)
-- "The Peck Heard Round the World": attempt a silly world record (most pecks in 24 hours) — local news loves this.
+- "The Egg Toss Heard Round the World": attempt a silly world record (most eggs thrown in 24 hours) — local news loves this.
 - Open letter to "the blue app": a funny, clearly-parody breakup letter. Memeable, quotable, zero legal risk if it never claims affiliation.
 - Chicken CEO does AMAs (Reddit, X Spaces). A mascot founder is a press hook no competitor can copy.
 
@@ -132,13 +132,13 @@ X is one channel. Here are the rest, all $0:
 **Weeks 3–4 — Community seeding**
 - [ ] Launch on Product Hunt, Hacker News (Show HN), r/SideProject, Indie Hackers
 - [ ] Start the off-platform Discord/Telegram coop for earliest users
-- [ ] First silly stunt: "most pecks in 24 hours" record attempt
+- [ ] First silly stunt: "most eggs thrown in 24 hours" record attempt
 - [ ] Target: 250 users
 
 **Weeks 5–6 — Double down on what worked**
 - [ ] Kill the bottom 50% of content tactics; double the top 2 channels
 - [ ] Start weekly "Top Clucker" leaderboard contest with golden badge prizes
-- [ ] Publish first SEO blog post ("Why we replaced likes with pecks")
+- [ ] Publish first SEO blog post ("Why we replaced likes with egg throws")
 - [ ] Target: 500 users
 
 **Weeks 7–8 — Referral engine**

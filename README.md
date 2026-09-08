@@ -2,7 +2,7 @@
 
 Glasebook is a parody-inspired original social network. Not affiliated with Meta Platforms, Inc.
 
-A playful, Facebook's-fun-unserious-cousin social network: cluck posts, peck (like) them,
+A playful, Facebook's-fun-unserious-cousin social network: cluck posts, throw eggs at (like) them,
 gather your flock (friends), and slide into the coop (messages). Built as a single
 deployable Node.js monolith — free to run, easy to host.
 
@@ -38,11 +38,11 @@ Demo login: `demo@glasebook.local` / `glasebook123`
 
 - **Auth** — signup/login/logout, bcrypt hashing, httpOnly session cookies, CSRF protection, rate-limited auth endpoints
 - **Profiles** — avatar + cover upload, bio, public shareable profile pages with Open Graph preview tags
-- **Clucks** — text + image posts, pecks (likes), comments, delete your own
+- **Clucks** — text + image posts, egg throws (likes), comments, delete your own
 - **Feed** — your flock's clucks, newest first; promoted posts pin to top (dormant monetization hook)
 - **Friends** — requests, accept/decline, unfriend, user search
 - **Messages** — 1:1 conversations, polling-based live updates
-- **Notifications** — pecks, comments, friend requests/accepts, messages; mark-all-read
+- **Notifications** — egg throws, comments, friend requests/accepts, messages; mark-all-read
 - **Growth** — unique invite link per user (`#/signup?ref=CODE`), referral tracking, `#/leaderboard` of top inviters, playful "Welcome to the flock!" onboarding
 - **Monetization hooks (dormant)** — `promoted` flag on posts (only settable by `premium` users), `premium` flag on users. No payments wired up yet — the schema is ready.
 

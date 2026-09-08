@@ -94,8 +94,8 @@ const ICONS = {
   send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
   user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
   logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
-  // little chick head — the "peck" button
-  peck: '<circle cx="10.5" cy="13" r="6.5"/><path d="M9 6.8C8.4 5 7 4.6 6.8 3M11 6.6c.4-1.8 1.6-2.4 1.8-4"/><circle cx="11.8" cy="11.8" r="1.3" fill="currentColor" stroke="none"/><path d="M16.6 12.6l4.2-1.3-4.2-1.4z" fill="currentColor" stroke="none"/>',
+  // an egg — the "throw an egg" button
+  egg: '<ellipse cx="12" cy="13" rx="7" ry="8.6"/><path d="M8.6 11.5l2-2.2 2 2.2 2-2.2 2 2.2"/>',
 };
 
 function icon(name, cls) {
@@ -220,7 +220,7 @@ async function getLeaderboard() {
 
 const DEFAULT_META = {
   title: "Glasebook — Cluck with your flock",
-  description: "Glasebook is a cozy, original social network. Share clucks, peck what you love, and grow your flock.",
+  description: "Glasebook is a cozy, original social network. Share clucks, throw eggs at what you love, and grow your flock.",
   image: "",
 };
 
@@ -381,7 +381,7 @@ function wireSearch() {
 const SILLY_LOADING = [
   "Herding chickens…",
   "Warming up the coop…",
-  "Pecking around for data…",
+  "Rummaging for eggs…",
   "Fluffing the nest…",
   "Counting eggs…",
 ];
@@ -423,7 +423,7 @@ function renderLanding() {
   document.getElementById("nav").innerHTML = "";
   setPageMeta({
     title: "Glasebook — Cluck with your flock",
-    description: "Glasebook is the silly, cozy social network where you cluck your thoughts, peck what you love, and grow your flock. Free to join — hop in the coop!",
+    description: "Glasebook is the silly, cozy social network where you cluck your thoughts, throw eggs at what you love, and grow your flock. Free to join — hop in the coop!",
     image: "",
   });
   // Zero API calls: the landing page works with no authentication at all.
@@ -824,8 +824,8 @@ function postCardHTML(p) {
       (p.imageUrl ? '<img class="post-image" src="' + esc(p.imageUrl) + '" alt="cluck image" loading="lazy">' : "") +
       '<div class="post-actions">' +
         '<button class="action-btn peck-btn' + (p.likedByMe ? " pecked" : "") + '">' +
-          icon("peck") +
-          '<span class="peck-label">' + (p.likedByMe ? "Pecked" : "Peck") + '</span> <span class="peck-count">(' + esc(String(p.likeCount || 0)) + ")</span>" +
+          icon("egg") +
+          '<span class="peck-label">' + (p.likedByMe ? "Egged \uD83E\uDD5A" : "Throw an egg \uD83E\uDD5A") + '</span> <span class="peck-count">(' + esc(String(p.likeCount || 0)) + ")</span>" +
         "</button>" +
         '<button class="action-btn comment-toggle">' + icon("comment") + ' <span>Comment</span> <span class="comment-count">(' + esc(String(p.commentCount || 0)) + ")</span></button>" +
       "</div>" +
@@ -863,7 +863,7 @@ function wirePostCard(el, post) {
       post.likedByMe = data.liked;
       post.likeCount = data.likeCount;
       peckBtn.classList.toggle("pecked", data.liked);
-      peckBtn.querySelector(".peck-label").textContent = data.liked ? "Pecked" : "Peck";
+      peckBtn.querySelector(".peck-label").textContent = data.liked ? "Egged \uD83E\uDD5A" : "Throw an egg \uD83E\uDD5A";
       el.querySelector(".peck-count").textContent = "(" + data.likeCount + ")";
       if (data.liked) {
         // little celebratory chicken bounce
@@ -1449,7 +1449,7 @@ function scrollMsgs() {
 /* ================= notifications ================= */
 
 const NOTIF_ICON = {
-  like: "peck",
+  like: "egg",
   comment: "comment",
   friend_request: "friends",
   friend_accept: "check",
@@ -1459,7 +1459,7 @@ const NOTIF_ICON = {
 function notifText(n) {
   const name = n.actor ? n.actor.name : "Someone";
   switch (n.type) {
-    case "like": return "<b>" + esc(name) + "</b> pecked your cluck.";
+    case "like": return "<b>" + esc(name) + "</b> threw an egg at your cluck \uD83E\uDD5A.";
     case "comment": return "<b>" + esc(name) + "</b> commented on your cluck.";
     case "friend_request": return "<b>" + esc(name) + "</b> sent you a friend request.";
     case "friend_accept": return "<b>" + esc(name) + "</b> joined your flock.";
